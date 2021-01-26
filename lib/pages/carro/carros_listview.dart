@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:carros/pages/carro/carro.dart';
 import 'package:carros/pages/carro/carro_page.dart';
 import 'package:carros/pages/carro/carros_api.dart';
@@ -17,6 +19,8 @@ class _CarrosLisViewState extends State<CarrosLisView>
     with AutomaticKeepAliveClientMixin<CarrosLisView> {
   List<Carro> carros;
 
+  final _streamController = StreamController<List<Carro>>();
+
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
@@ -25,54 +29,61 @@ class _CarrosLisViewState extends State<CarrosLisView>
   void initState() {
     // TODO: implement initState
     super.initState();
-    // Future<List<Carro>> future = CarrosApi.getCarros(tipo);
-    // future.then((List<Carro> carros) {
-    //   setState(() {
-    //     this.carros = carros;
-    //   });
-    // });
-
     _loadData();
   }
 
   _loadData() async {
     List<Carro> carros = await CarrosApi.getCarros(widget.tipo);
-    setState(() {
-      this.carros = carros;
-    });
+    _streamController.add(carros);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    return _body(widget.tipo);
+    return StreamBuilder(
+      stream: _streamController.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text("Erro ao buscar carros. "),
+          );
+        }
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        List<Carro> carros = snapshot.data;
+        return _listView(carros);
+      },
+    );
   }
 
-  _body(String tipo) {
-    if (carros == null) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return _listView(carros);
-    // return FutureBuilder(
-    //     future: future,
-    //     builder: (context, snapshot) {
-    //       if (snapshot.hasError) {
-    //         return Center(
-    //           child: Text("Erro ao buscar carros. "),
-    //         );
-    //       }
-    //       if (!snapshot.hasData) {
-    //         return Center(
-    //           child: CircularProgressIndicator(),
-    //         );
-    //       }
-    //       List<Carro> carros = snapshot.data;
-    //       return _listView(carros);
-    //     });
-  }
+  // _body(String tipo) {
+  //   if (carros == null) {
+  //     return Center(
+  //       child: CircularProgressIndicator(),
+  //     );
+  //   }
+  //   return _listView(carros);
+  // return FutureBuilder(
+  //     future: future,
+  //     builder: (context, snapshot) {
+  //       if (snapshot.hasError) {
+  //         return Center(
+  //           child: Text("Erro ao buscar carros. "),
+  //         );
+  //       }
+  //       if (!snapshot.hasData) {
+  //         return Center(
+  //           child: CircularProgressIndicator(),
+  //         );
+  //       }
+  //       List<Carro> carros = snapshot.data;
+  //       return _listView(carros);
+  //     });
+  // }
 
   _listView(List<Carro> carros) {
     return Container(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:carros/pages/api_response.dart';
 import 'package:carros/pages/carro/home_page.dart';
 import 'package:carros/pages/login/login_api.dart';
@@ -14,14 +16,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _streamController = StreamController<bool>();
+
   final _formKey = GlobalKey<FormState>();
 
   final _tLogin = TextEditingController(text: "user");
   final _tSenha = TextEditingController(text: "123");
 
   final _focusSenha = FocusNode();
-
-  bool _showProgress = false;
 
   @override
   void initState() {
@@ -80,11 +82,16 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 10,
             ),
-            AppButton(
-              text: "Login",
-              onClickLogin: _onClickLogin,
-              showProgress: _showProgress,
-            ),
+            StreamBuilder<bool>(
+                stream: _streamController.stream,
+                initialData: false,
+                builder: (context, snapshot) {
+                  return AppButton(
+                    text: "Login",
+                    onClickLogin: _onClickLogin,
+                    showProgress: snapshot.data,
+                  );
+                }),
           ],
         ),
       ),
@@ -127,9 +134,7 @@ class _LoginPageState extends State<LoginPage> {
     String login = _tLogin.text;
     String senha = _tSenha.text;
 
-    setState(() {
-      _showProgress = true;
-    });
+    _streamController.add(true);
 
     ApiResponse response = await LoginApi.login(login, senha);
 
@@ -138,9 +143,7 @@ class _LoginPageState extends State<LoginPage> {
     else
       alert(context, response.msg);
 
-    setState(() {
-      _showProgress = false;
-    });
+    _streamController.add(false);
   }
 
   String _validateLogin(String text) {
@@ -151,5 +154,12 @@ class _LoginPageState extends State<LoginPage> {
   String _validateSenha(String text) {
     if (text.isEmpty) return "Digite a Senha";
     return null;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _streamController.close();
   }
 }
