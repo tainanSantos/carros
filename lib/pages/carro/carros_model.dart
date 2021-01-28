@@ -3,20 +3,27 @@ import 'dart:async';
 
 import 'package:carros/pages/carro/carro.dart';
 import 'package:carros/pages/carro/carros_api.dart';
-import 'package:carros/pages/carro/simple_bloc.dart';
+import 'package:mobx/mobx.dart';
 
-class CarrosBloc extends SimpleBloc<List<Carro>> {
+part 'carros_model.g.dart';
 
+class CarrosModel = CarrosModelBase with _$CarrosModel;
 
+abstract class CarrosModelBase with Store {
+  @observable
+  List<Carro> carros;
+
+  @observable
+  Exception error;
+
+  @action
   fetch(String tipo) async {
     try {
-      List<Carro> carros = await CarrosApi.getCarros(tipo);
-      add(carros);
+      error = null;
+      this.carros = await CarrosApi.getCarros(tipo);
     } catch (e) {
       //  fazendo isso para que a stream possa pegar o erro que vem da api
-      addError(e);
+      error = e;
     }
   }
-
-
 }

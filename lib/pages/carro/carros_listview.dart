@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:carros/pages/carro/carro.dart';
 import 'package:carros/pages/carro/carro_page.dart';
 import 'package:carros/pages/carro/carros_api.dart';
-import 'package:carros/pages/carro/carros_bloc.dart';
+import 'package:carros/pages/carro/carros_model.dart';
 import 'package:carros/utils/nav.dart';
 import 'package:carros/widgets/text_error.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CarrosLisView extends StatefulWidget {
   final String tipo;
@@ -21,7 +22,7 @@ class _CarrosLisViewState extends State<CarrosLisView>
     with AutomaticKeepAliveClientMixin<CarrosLisView> {
   List<Carro> carros;
 
-  final _bloc = CarrosBloc();
+  final _model = CarrosModel();
 
   @override
   // TODO: implement wantKeepAlive
@@ -31,25 +32,32 @@ class _CarrosLisViewState extends State<CarrosLisView>
   void initState() {
     // TODO: implement initState
     super.initState();
-    _bloc.fetch(widget.tipo);
+    _fetch();
+  }
+
+  _fetch() {
+    _model.fetch(widget.tipo);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    return StreamBuilder(
-      stream: _bloc.stream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return TextError("Não foi possível buscar os vcarros.");
+    return Observer(
+      builder: (context) {
+        List<Carro> carros = _model.carros;
+
+        if (_model.error != null) {
+          return TextError(
+            "Não foi possível buscar os carros.\nClique para tentar novamente.",
+            onPresed: _fetch,
+          );
         }
-        if (!snapshot.hasData) {
+        if (_model.carros == null) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
-        List<Carro> carros = snapshot.data;
         return _listView(carros);
       },
     );
@@ -141,12 +149,5 @@ class _CarrosLisViewState extends State<CarrosLisView>
 
   _onClickCarro(Carro c) {
     push(context, CarroPage(c));
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _bloc.dispose();
   }
 }
