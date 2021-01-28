@@ -33,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
 
     Future<Usuario> future = Usuario.get();
 
-
     future.then((Usuario user) {
       if (user != null) {
         // se tiver um usuário no sistema eu já vou direto para a tela de home
@@ -85,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 10,
             ),
             StreamBuilder<bool>(
-                stream: _bloc.stream,
+                stream: _bloc.buttonBloc.stream,
                 initialData: false,
                 builder: (context, snapshot) {
                   return AppButton(
