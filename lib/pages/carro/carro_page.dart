@@ -1,4 +1,5 @@
 import 'package:carros/pages/carro/carro.dart';
+import 'package:carros/widgets/text.dart';
 import 'package:flutter/material.dart';
 
 class CarroPage extends StatelessWidget {
@@ -45,9 +46,52 @@ class CarroPage extends StatelessWidget {
 
   _body() {
     return Container(
-        padding: EdgeInsets.all(16),
-        child: Image.network(carro?.urlFoto ??
-            "https://img.olx.com.br/images/61/616098458720941.jpg"));
+      padding: EdgeInsets.all(16),
+      child: ListView(
+        children: <Widget>[
+          Image.network(carro?.urlFoto ??
+              "https://img.olx.com.br/images/61/616098458720941.jpg"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  text(
+                    carro.nome,
+                    fontSize: 20,
+                    bold: true,
+                  ),
+                  text(
+                    carro.tipo,
+                    fontSize: 16,
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                      size: 35,
+                    ),
+                    onPressed: _onClickFavorito,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.share,
+                      size: 35,
+                    ),
+                    onPressed: _onClickShare,
+                  ),
+                ],
+              )
+            ],
+          )
+        ],
+      ),
+    );
   }
 
   void _onClickMap() {}
@@ -64,4 +108,8 @@ class CarroPage extends StatelessWidget {
         break;
     }
   }
+
+  void _onClickFavorito() {}
+
+  void _onClickShare() {}
 }
