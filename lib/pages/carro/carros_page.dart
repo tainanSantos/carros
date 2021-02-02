@@ -51,11 +51,16 @@ class _CarrosPageState extends State<CarrosPage>
           );
         }
         List<Carro> carros = snapshot.data;
-        return CarrosLisView(carros);
+
+        return RefreshIndicator(
+            onRefresh: _onRefresh, child: CarrosLisView(carros));
       },
     );
   }
 
+  Future<void> _onRefresh() {
+    return _bloc.fetch(widget.tipo);
+  }
 
   _onClickCarro(Carro c) {
     push(context, CarroPage(c));

@@ -31,9 +31,6 @@ class _HomePageState extends State<HomePage>
       _tabController.index = tabIdx;
     });
 
-    // future.then((int tabIdx) {
-    //   _tabController.index = tabIdx;
-    // });    int tabIdx = await Prefs.getInt("tabIdx");
 
     _tabController.addListener(() {
       Prefs.setInt("tabIdx", _tabController.index);
