@@ -1,11 +1,26 @@
 import 'package:carros/pages/carro/carro.dart';
+import 'package:carros/pages/carro/loripsom_api.dart';
 import 'package:carros/widgets/text.dart';
 import 'package:flutter/material.dart';
 
-class CarroPage extends StatelessWidget {
+class CarroPage extends StatefulWidget {
   Carro carro;
 
   CarroPage(this.carro);
+
+  @override
+  _CarroPageState createState() => _CarroPageState();
+}
+
+class _CarroPageState extends State<CarroPage> {
+  final _loripsomApiBloc = LoripsomBloc();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loripsomApiBloc.fetch();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +64,7 @@ class CarroPage extends StatelessWidget {
       padding: EdgeInsets.all(16),
       child: ListView(
         children: <Widget>[
-          Image.network(carro?.urlFoto ??
+          Image.network(widget.carro?.urlFoto ??
               "https://img.olx.com.br/images/61/616098458720941.jpg"),
           _bloco1(),
           Divider(),
@@ -67,12 +82,12 @@ class CarroPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             text(
-              carro.nome,
+              widget.carro.nome,
               fontSize: 20,
               bold: true,
             ),
             text(
-              carro.tipo,
+              widget.carro.tipo,
               fontSize: 16,
             )
           ],
@@ -107,12 +122,20 @@ class CarroPage extends StatelessWidget {
         SizedBox(
           height: 20,
         ),
-        text(carro.descricao, fontSize: 16, bold: true),
+        text(widget.carro.descricao, fontSize: 16, bold: true),
         SizedBox(
           height: 20,
         ),
-        text(
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."),
+        StreamBuilder<String>(
+            stream: _loripsomApiBloc.stream,
+            builder: (BuildContext context, AsyncSnapshot snapShot) {
+              if (!snapShot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return text(snapShot.data, fontSize: 16);
+            })
       ],
     );
   }
@@ -135,4 +158,11 @@ class CarroPage extends StatelessWidget {
   void _onClickFavorito() {}
 
   void _onClickShare() {}
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _loripsomApiBloc.dispose();
+  }
 }
