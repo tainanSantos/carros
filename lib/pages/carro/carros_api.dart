@@ -27,16 +27,6 @@ class CarrosApi {
     String json = response.body;
     List list = convert.json.decode(json);
 
-    // List<Carro> carros = List<Carro>();
-
-    // for (var map in list) {
-    //   Carro c = Carro.fromJson(map);
-    //   carros.add(c);
-    // }
-
-    // print("__________________");
-    // print(carros.length);
-
     final carros = list.map<Carro>((map) => Carro.fromJson(map)).toList();
 
     return carros;
